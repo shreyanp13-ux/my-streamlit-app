@@ -34,4 +34,11 @@ LOCATION_OPTIONS = [
     'abdomen', 'back', 'chest', 'ear', 'face', 'foot', 'genital',
     'hand', 'lower extremity', 'neck', 'scalp', 'trunk', 'unknown', 'upper extremity'
 ]
-FITZPATRICK_LABELS
+FITZPATRICK_LABELS = {
+    1: "Type I — Very fair",
+    2: "Type II — Fair",
+    3: "Type III — Medium",
+    4: "Type IV — Olive/brown",
+    5: "Type V — Brown",
+    6: "Type VI — Dark brown/black"
+}
