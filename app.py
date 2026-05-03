@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
-import json
 import os
 
 st.set_page_config(
@@ -10,7 +9,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# ── Custom CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
   .main { max-width: 720px; }
@@ -31,7 +29,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Constants ───────────────────────────────────────────────────────────────
 IMG_SIZE = 224
 LOCATION_OPTIONS = [
     'abdomen', 'back', 'chest', 'ear', 'face', 'foot', 'genital',
@@ -46,19 +43,17 @@ FITZPATRICK_LABELS = {
     6: "Type VI — Dark brown/black"
 }
 
-# ── Load model (cached) ─────────────────────────────────────────────────────
 @st.cache_resource
 def load_model():
     try:
-        import tensorflow as tf
-        model = tf.keras.models.load_model("skin_lesion_model.keras")
+        import keras
+        model = keras.models.load_model("skin_lesion_model.keras")
         return model, True
     except Exception as e:
         return None, False
 
 model, model_loaded = load_model()
 
-# ── Helper: detect skin tone ────────────────────────────────────────────────
 def detect_skin_tone(img: Image.Image):
     img_arr = np.array(img.resize((224, 224)))
     h, w, _ = img_arr.shape
@@ -76,16 +71,15 @@ def detect_skin_tone(img: Image.Image):
     avg = skin_pixels.mean(axis=0)
     r, g, b = avg
     ita = np.degrees(np.arctan((r - 128) / (b + 1))) + (g - 128) * 0.3
-    if ita > 55:   return 1
-    elif ita > 41: return 2
-    elif ita > 28: return 3
-    elif ita > 10: return 4
+    if ita > 55:    return 1
+    elif ita > 41:  return 2
+    elif ita > 28:  return 3
+    elif ita > 10:  return 4
     elif ita > -30: return 5
     else:           return 6
 
-# ── Helper: run prediction ──────────────────────────────────────────────────
 def predict(img: Image.Image, location: str, tone_int: int):
-    import tensorflow as tf
+    import keras
     orig_w, orig_h = img.size
     img_resized = img.resize((IMG_SIZE, IMG_SIZE))
     img_arr = np.array(img_resized, dtype=np.float32) / 255.0
@@ -100,7 +94,6 @@ def predict(img: Image.Image, location: str, tone_int: int):
     )[0]
     return float(probs[1]) if len(probs) == 2 else float(probs[0])
 
-# ── UI ──────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class="title-block">
   <h1>🔬 Skin Lesion Analyzer</h1>
@@ -117,7 +110,6 @@ if not model_loaded:
 
 st.markdown("---")
 
-# Step 1 — Upload
 st.subheader("Step 1 — Upload image")
 uploaded_file = st.file_uploader("Choose a skin lesion image", type=["jpg", "jpeg", "png"])
 
@@ -135,7 +127,6 @@ if uploaded_file:
 
     st.markdown("---")
 
-    # Step 2 — Patient info
     st.subheader("Step 2 — Patient info")
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -152,7 +143,6 @@ if uploaded_file:
 
     st.markdown("---")
 
-    # Step 3 — Analyze
     st.subheader("Step 3 — Analyze")
     run = st.button("🔍 Analyze lesion", type="primary", use_container_width=True)
 
@@ -161,22 +151,19 @@ if uploaded_file:
             with st.spinner("Analyzing image..."):
                 melanoma_prob = predict(img, location, tone_int)
         else:
-            # Demo mode — simulated result
             st.info("Running in **demo mode** (no model loaded) — result is simulated.", icon="ℹ️")
-            melanoma_prob = float(np.random.beta(2, 5))  # skews benign for demo
+            melanoma_prob = float(np.random.beta(2, 5))
 
         benign_prob = 1.0 - melanoma_prob
         melanoma_pct = round(melanoma_prob * 100, 1)
         benign_pct   = round(benign_prob   * 100, 1)
 
-        # Check image contrast (no lesion guard)
         img_gray = np.array(img.convert("L"), dtype=np.float32)
         low_contrast = img_gray.std() < 18
 
         if low_contrast:
             st.warning("No lesion detected — please upload an image that clearly shows a skin lesion.")
         else:
-            # Verdict
             if melanoma_prob >= 0.7:
                 box_class = "result-melanoma"
                 verdict   = "⚠️ Likely melanoma"
@@ -187,7 +174,7 @@ if uploaded_file:
                 detail    = f"The model is {benign_pct}% confident this lesion is benign. Continue to monitor for changes."
             else:
                 box_class = "result-unclear"
-                verdict   = "❔ Inconclusive"
+                verdict   = "❓ Inconclusive"
                 detail    = "Confidence is too low for a clear diagnosis. Try a higher-quality or closer image."
 
             st.markdown(f"""
@@ -197,7 +184,6 @@ if uploaded_file:
             </div>
             """, unsafe_allow_html=True)
 
-            # Confidence bars
             st.markdown("#### Confidence")
             col_b, col_m = st.columns(2)
             col_b.metric("Benign",   f"{benign_pct}%")
@@ -206,7 +192,6 @@ if uploaded_file:
             st.progress(benign_pct / 100, text=f"Benign — {benign_pct}%")
             st.progress(melanoma_pct / 100, text=f"Melanoma — {melanoma_pct}%")
 
-            # Summary
             st.markdown("#### Summary")
             st.markdown(f"""
 | Field | Value |
