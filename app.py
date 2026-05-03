@@ -36,6 +36,10 @@ st.markdown("""
   div[data-testid="stMetric"] label { color: #1a1a1a !important; }
   div[data-testid="stMetric"] div { color: #1a1a1a !important; }
   .stFileUploader label { color: #1a1a1a !important; }
+  .stFileUploader p { color: #1a1a1a !important; }
+  .stFileUploader span { color: #1a1a1a !important; }
+  [data-testid="stFileUploaderDropzone"] { color: #1a1a1a !important; }
+  [data-testid="stFileUploaderDropzone"] span { color: #1a1a1a !important; }
   .stSelectbox label { color: #1a1a1a !important; }
   .stButton button { color: white !important; }
 </style>
