@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 from PIL import Image
+import os
 
 st.set_page_config(
     page_title="Skin Lesion Analyzer",
@@ -45,7 +46,6 @@ FITZPATRICK_LABELS = {
 @st.cache_resource
 def load_model():
     try:
-        import os
         os.environ["KERAS_BACKEND"] = "jax"
         import keras
         model = keras.models.load_model("skin_lesion_model.keras")
@@ -126,8 +126,21 @@ if uploaded_file:
     run = st.button("🔍 Analyze lesion", type="primary", use_container_width=True)
 
     if run:
-        st.info("Running in **demo mode** — result is simulated.", icon="ℹ️")
-        melanoma_prob = float(np.random.beta(2, 5))
+        if model_loaded:
+            with st.spinner("Analyzing image..."):
+                loc_enc = LOCATION_OPTIONS.index(location) / (len(LOCATION_OPTIONS) - 1)
+                tone_norm = (tone_int - 1) / 5.0
+                orig_w_norm = min(orig_w / 1024.0, 1.0)
+                orig_h_norm = min(orig_h / 1024.0, 1.0)
+                img_resized = img.resize((IMG_SIZE, IMG_SIZE))
+                img_arr = np.array(img_resized, dtype=np.float32) / 255.0
+                img_arr = np.expand_dims(img_arr, 0)
+                meta_vec = np.array([[tone_norm, loc_enc, orig_w_norm, orig_h_norm]], dtype=np.float32)
+                probs = model.predict({'image_input': img_arr, 'meta_input': meta_vec}, verbose=0)[0]
+                melanoma_prob = float(probs[1]) if len(probs) == 2 else float(probs[0])
+        else:
+            st.info("Running in **demo mode** — result is simulated.", icon="ℹ️")
+            melanoma_prob = float(np.random.beta(2, 5))
 
         benign_prob = 1.0 - melanoma_prob
         melanoma_pct = round(melanoma_prob * 100, 1)
