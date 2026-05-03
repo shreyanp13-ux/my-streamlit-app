@@ -42,8 +42,19 @@ FITZPATRICK_LABELS = {
     6: "Type VI — Dark brown/black"
 }
 
-model = None
-model_loaded = False
+@st.cache_resource
+def load_model():
+    try:
+        import os
+        os.environ["KERAS_BACKEND"] = "jax"
+        import keras
+        model = keras.models.load_model("skin_lesion_model.keras")
+        return model, True
+    except Exception as e:
+        st.error(f"Model error: {e}")
+        return None, False
+
+model, model_loaded = load_model()
 
 def detect_skin_tone(img: Image.Image):
     img_arr = np.array(img.resize((224, 224)))
