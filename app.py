@@ -45,6 +45,10 @@ st.markdown("""
     background-color: #ffffff !important;
     border: 2px dashed #cccccc !important;
   }
+   [data-testid="stFileUploaderDropzone"] button {
+    background-color: #00b4d8 !important;
+    color: white !important;
+  }
   .stButton button { color: white !important; }
 </style>
 """, unsafe_allow_html=True)
