@@ -46,10 +46,12 @@ FITZPATRICK_LABELS = {
 @st.cache_resource
 def load_model():
     try:
+        os.environ["KERAS_BACKEND"] = "jax"
         import keras
         model = keras.models.load_model("skin_lesion_model.keras")
         return model, True
     except Exception as e:
+        st.error(f"Model error: {e}")
         return None, False
 
 model, model_loaded = load_model()
@@ -78,35 +80,12 @@ def detect_skin_tone(img: Image.Image):
     elif ita > -30: return 5
     else:           return 6
 
-def predict(img: Image.Image, location: str, tone_int: int):
-    import keras
-    orig_w, orig_h = img.size
-    img_resized = img.resize((IMG_SIZE, IMG_SIZE))
-    img_arr = np.array(img_resized, dtype=np.float32) / 255.0
-    img_arr = np.expand_dims(img_arr, 0)
-    loc_enc = LOCATION_OPTIONS.index(location) / (len(LOCATION_OPTIONS) - 1)
-    tone_norm = (tone_int - 1) / 5.0
-    orig_w_norm = min(orig_w / 1024.0, 1.0)
-    orig_h_norm = min(orig_h / 1024.0, 1.0)
-    meta_vec = np.array([[tone_norm, loc_enc, orig_w_norm, orig_h_norm]], dtype=np.float32)
-    probs = model.predict(
-        {'image_input': img_arr, 'meta_input': meta_vec}, verbose=0
-    )[0]
-    return float(probs[1]) if len(probs) == 2 else float(probs[0])
-
 st.markdown("""
 <div class="title-block">
   <h1>🔬 Skin Lesion Analyzer</h1>
   <p>Upload a dermoscopy image to get an AI-powered benign vs. melanoma assessment</p>
 </div>
 """, unsafe_allow_html=True)
-
-if not model_loaded:
-    st.warning(
-        "**Model not found.** Place `skin_lesion_model.keras` in the same folder as `app.py`, "
-        "then restart the app. Predictions will be unavailable until then.",
-        icon="⚠️"
-    )
 
 st.markdown("---")
 
@@ -149,9 +128,18 @@ if uploaded_file:
     if run:
         if model_loaded:
             with st.spinner("Analyzing image..."):
-                melanoma_prob = predict(img, location, tone_int)
+                loc_enc = LOCATION_OPTIONS.index(location) / (len(LOCATION_OPTIONS) - 1)
+                tone_norm = (tone_int - 1) / 5.0
+                orig_w_norm = min(orig_w / 1024.0, 1.0)
+                orig_h_norm = min(orig_h / 1024.0, 1.0)
+                img_resized = img.resize((IMG_SIZE, IMG_SIZE))
+                img_arr = np.array(img_resized, dtype=np.float32) / 255.0
+                img_arr = np.expand_dims(img_arr, 0)
+                meta_vec = np.array([[tone_norm, loc_enc, orig_w_norm, orig_h_norm]], dtype=np.float32)
+                probs = model.predict({'image_input': img_arr, 'meta_input': meta_vec}, verbose=0)[0]
+                melanoma_prob = float(probs[1]) if len(probs) == 2 else float(probs[0])
         else:
-            st.info("Running in **demo mode** (no model loaded) — result is simulated.", icon="ℹ️")
+            st.info("Running in **demo mode** — result is simulated.", icon="ℹ️")
             melanoma_prob = float(np.random.beta(2, 5))
 
         benign_prob = 1.0 - melanoma_prob
