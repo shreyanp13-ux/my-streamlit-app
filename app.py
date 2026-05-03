@@ -106,8 +106,8 @@ st.markdown("""
 st.markdown("---")
 
 st.subheader("Step 1 — Upload image")
-uploaded_file = st.file_uploader("Choose a skin lesion image", type=["jpg", "jpeg", "png"])
-
+st.markdown("<p style='color:#1a1a1a; font-weight:500;'>Choose a skin lesion image (JPG, PNG)</p>", unsafe_allow_html=True)
+uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"])
 if uploaded_file:
     img = Image.open(uploaded_file).convert("RGB")
     orig_w, orig_h = img.size
