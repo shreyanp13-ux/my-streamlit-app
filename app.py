@@ -18,7 +18,7 @@ st.markdown("""
   }
   .main { max-width: 720px; }
   h1, h2, h3, h4, h5, h6 { color: #1a1a1a !important; }
-  p, span, div, label { color: #1a1a1a !important; }
+  p, label { color: #1a1a1a !important; }
   .stMarkdown p { color: #1a1a1a !important; }
   .title-block { text-align: center; padding: 2rem 0 1rem; }
   .title-block h1 { font-size: 2rem; font-weight: 600; color: #1a1a1a !important; margin: 0; }
