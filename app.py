@@ -4,7 +4,7 @@ from PIL import Image
 import os
 
 st.set_page_config(
-    page_title="Skin Lesion Analyzer",
+    page_title="Skin Lesion Analyzer: AI Powered Melanoma Detection",
     page_icon="🔬",
     layout="centered"
 )
@@ -24,8 +24,9 @@ st.markdown("""
   .disclaimer { background: #fff8e1; border-left: 4px solid #f9a825;
                 padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.85rem;
                 color: #5a4000; margin-top: 1.5rem; }
-  div[data-testid="stMetric"] { background: white; border-radius: 10px;
+div[data-testid="stMetric"] { background: white; border-radius: 10px;
                                 padding: 0.75rem; border: 1px solid #e0e0e0; }
+  h3 { color: #1a1a1a !important; }
 </style>
 """, unsafe_allow_html=True)
 
