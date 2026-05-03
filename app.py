@@ -41,6 +41,10 @@ st.markdown("""
   [data-testid="stFileUploaderDropzone"] { color: #1a1a1a !important; }
   [data-testid="stFileUploaderDropzone"] span { color: #1a1a1a !important; }
   .stSelectbox label { color: #1a1a1a !important; }
+  [data-testid="stFileUploaderDropzone"] {
+    background-color: #ffffff !important;
+    border: 2px dashed #cccccc !important;
+  }
   .stButton button { color: white !important; }
 </style>
 """, unsafe_allow_html=True)
