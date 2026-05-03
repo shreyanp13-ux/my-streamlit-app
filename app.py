@@ -12,7 +12,7 @@ st.set_page_config(
 st.markdown("""
 <style>
   /* Force light mode */
-  html, body, [class*="css"], .stApp {
+ html, body, .stApp {
     background-color: #ffffff !important;
     color: #1a1a1a !important;
   }
