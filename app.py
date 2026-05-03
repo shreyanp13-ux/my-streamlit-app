@@ -83,7 +83,7 @@ def detect_skin_tone(img: Image.Image):
 
 st.markdown("""
 <div class="title-block">
-  <h1>🔬 Skin Lesion Analyzer</h1>
+  <h1>🔬 Skin Lesion Analyzer: AI-Powered Melanoma Detection</h1>
   <p>Upload a dermoscopy image to get an AI-powered benign vs. melanoma assessment</p>
 </div>
 """, unsafe_allow_html=True)
